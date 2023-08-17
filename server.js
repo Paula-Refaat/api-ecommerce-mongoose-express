@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const dbConnection = require('./config/database');
 const categoryRoute = require('./routes/categoryRoute');
-const middleWare = require('./middleWare/middleWare')
+const middleWare = require('./middleWare/middleWare');
 
 dotenv.config({ path: "config.env" });
 
@@ -15,6 +15,7 @@ const app = express();
 
 //Middleware
 middleWare();
+app.use(express.json());
 
 // Mount Routes
 app.use("/api/categories", categoryRoute)

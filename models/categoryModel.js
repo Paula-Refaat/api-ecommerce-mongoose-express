@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const categorySchema = new mongoose.Schema(
   {
     name: {
-      type: string,
+      type: String,
       required: [true, "Category required"],
       unique: [true, "Category must be unique"],
       minLength: [3, "Too short category name"],
@@ -12,7 +12,7 @@ const categorySchema = new mongoose.Schema(
     },
     //A and B => shopping.com/a-and-b
     slug: {
-      type: string,
+      type: String,
       lowercase: true,
     },
     image: String,
