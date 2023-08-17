@@ -1,7 +1,8 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const morgan = require("morgan"); //Logger + midleware
-const {dbConnection} = require('./config/database');
+const dbConnection = require('./config/database');
+const categoryRoute = require('./routes/categoryRoute');
+const middleWare = require('./middleWare/middleWare')
 
 dotenv.config({ path: "config.env" });
 
@@ -11,14 +12,12 @@ dbConnection();
 //express App
 const app = express();
 
+
 //Middleware
-app.use(express.json());
+middleWare();
 
-if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"));
-  console.log(`mode: ${process.env.NODE_ENV}`);
-}
-
+// Mount Routes
+app.use("/api/categories", categoryRoute)
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
