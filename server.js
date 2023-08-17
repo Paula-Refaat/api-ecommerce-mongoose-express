@@ -15,7 +15,7 @@ const app = express();
 
 //Middleware
 middleWare();
-
+app.use(express.json());
 // Mount Routes
 app.use("/api/categories", categoryRoute)
 
