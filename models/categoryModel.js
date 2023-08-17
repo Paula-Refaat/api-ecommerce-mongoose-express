@@ -15,6 +15,7 @@ const categorySchema = new mongoose.Schema(
       type: string,
       lowercase: true,
     },
+    image: String,
   },
   { timestamps: true }
 );
