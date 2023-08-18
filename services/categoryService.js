@@ -1,14 +1,23 @@
 const CategoryModel = require("../models/categoryModel");
 const slugify = require("slugify");
 const asyncHandler = require("express-async-handler");
-const { describe } = require("node:test");
 
 // @desc    Get list of category
 // @route   GET /api/categories
 // @access  Public
 exports.getCategories = asyncHandler(async (req, res) => {
-  const categories = await CategoryModel.find({});
-  res.status(200).json({ results: categories.length, data: categories });
+  /*
+page    limit     skip
+1       10        0
+2       10        10
+3       10        20  
+*/
+  const page = req.query.page * 1 || 1;
+  const limit = req.query.limit * 1 || 3;
+  const skip = (page - 1) * limit;
+
+  const categories = await CategoryModel.find({}).limit(limit).skip(skip);
+  res.status(200).json({ results: categories.length, page, data: categories });
 });
 
 // @desc    Create category
