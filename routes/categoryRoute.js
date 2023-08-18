@@ -4,6 +4,7 @@ const {
   getCategories,
   createCategory,
   getCategory,
+  updateCategory,
 } = require("../services/categoryService");
 
 // you can abbreviate the twi lines of code with one step
@@ -12,5 +13,7 @@ const {
 router.get("/", getCategories);
 router.post("/", createCategory);
 router.get("/:id", getCategory);
+router.put("/:id", updateCategory);
+
 
 module.exports = router;

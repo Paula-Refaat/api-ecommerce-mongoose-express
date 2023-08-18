@@ -21,7 +21,7 @@ page    limit     skip
 });
 
 // @desc    Get Specific category by id
-// @route   GET /api/categories
+// @route   GET /api/categories/:id
 // @access  Public
 exports.getCategory = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -41,4 +41,22 @@ exports.createCategory = asyncHandler(async (req, res) => {
 
   const category = await CategoryModel.create({ name, slug: slugify(name) });
   res.status(201).json({ data: category });
+});
+
+// @desc    Update Specific category
+// @route   PUT /api/categories/:id
+// @access  Private
+exports.updateCategory = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+
+  const category = await CategoryModel.findOneAndUpdate(
+    { _id: id },
+    { name, slug: slugify(name)},
+    { new: true }
+  );
+  if (!category) {
+    res.status(404).json({ message: `No category for this id: ${id}` });
+  }
+  res.status(200).json({ data: category });
 });
