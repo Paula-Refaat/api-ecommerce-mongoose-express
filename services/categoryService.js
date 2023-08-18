@@ -20,6 +20,18 @@ page    limit     skip
   res.status(200).json({ results: categories.length, page, data: categories });
 });
 
+// @desc    Get Specific category by id
+// @route   GET /api/categories
+// @access  Public
+exports.getCategory = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const category = await CategoryModel.findById(id);
+  if (!category) {
+    res.status(404).json({ message: `No category for this id: ${id}` });
+  }
+  res.status(200).json({ data: category });
+});
+
 // @desc    Create category
 // @route   POST /api/categories
 // @access  Private
