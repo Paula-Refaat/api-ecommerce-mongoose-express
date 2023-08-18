@@ -52,11 +52,24 @@ exports.updateCategory = asyncHandler(async (req, res) => {
 
   const category = await CategoryModel.findOneAndUpdate(
     { _id: id },
-    { name, slug: slugify(name)},
+    { name, slug: slugify(name) },
     { new: true }
   );
   if (!category) {
     res.status(404).json({ message: `No category for this id: ${id}` });
   }
   res.status(200).json({ data: category });
+});
+
+// @desc    Delete Specific category
+// @route   Del /api/categories/:id
+// @access  Private
+exports.deleteCategory = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const category = await CategoryModel.findByIdAndDelete(id);
+  if (!category) {
+    res.status(404).json({ message: `No category for this id: ${id}` });
+  }
+
+  res.status(204).send();
 });
