@@ -1,6 +1,7 @@
 const { check } = require("express-validator");
 const validatorMiddleware = require("../../middleWare/validatorMiddleware");
 
+//category Validator
 exports.getCategoryValidator = [
   check("id").isMongoId().withMessage("Invalid category id format"),
   validatorMiddleware,
