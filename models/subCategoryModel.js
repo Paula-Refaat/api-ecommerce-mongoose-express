@@ -20,7 +20,7 @@ const subCategorySchema = mongoose.Schema(
       required: [true, "SubCategory must be belong to parent category"],
     },
   },
-  { timestamp: true }
+  { timestamps: true }
 );
 
 const subCategoryModel = mongoose.model("SubCategory", subCategorySchema);

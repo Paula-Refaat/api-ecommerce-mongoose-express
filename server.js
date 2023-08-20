@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 
 const dbConnection = require("./config/database");
 const categoryRoute = require("./routes/categoryRoute");
+const subCategoryRoute = require("./routes/subCategoryRoute");
 const middleWare = require("./middleWare/middleWare");
 const globalError = require("./middleWare/errorMiddleware");
 const ApiError = require("./utils/apiError");
@@ -21,6 +22,7 @@ app.use(express.json());
 
 // Mount Routes
 app.use("/api/categories", categoryRoute);
+app.use("/api/subcategories", subCategoryRoute);
 
 app.all("*", (req, res, next) => {
   next(new ApiError(`can't find this route: ${req.originalUrl}`, 400));
