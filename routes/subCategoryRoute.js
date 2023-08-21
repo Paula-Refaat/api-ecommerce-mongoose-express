@@ -1,8 +1,27 @@
-const { createSubCategory } = require("../services/subCategoryService");
-const { createSubCategoryValidator } = require("../utils/validators/subCategoryValidator");
+const {
+  createSubCategory,
+  getSubCategory,
+  getSubCategories,
+  updateSubCategory,
+  deleteSubCategory,
+  setCategoryIdToBody,
+} = require("../services/subCategoryService");
+const {
+  createSubCategoryValidator,
+  getSubCategoryValidator,
+  updateSubCategoryValidator,
+  deleteSubCategoryValidator,
+} = require("../utils/validators/subCategoryValidator");
 
-const router = require("express").Router();
+//mergParams: Allow us to access parameters on other routes
+const router = require("express").Router({mergeParams: true});
 
-router.post("/", createSubCategoryValidator,createSubCategory);
+router.post("/",setCategoryIdToBody, createSubCategoryValidator, createSubCategory);
+router.get("/", getSubCategories);
+router.get("/:id", getSubCategoryValidator, getSubCategory);
+router.put("/:id", updateSubCategoryValidator, updateSubCategory);
+router.delete("/:id", deleteSubCategoryValidator, deleteSubCategory);
+
+
 
 module.exports = router;

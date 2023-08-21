@@ -13,9 +13,12 @@ const {
   updateCategory,
   deleteCategory,
 } = require("../services/categoryService");
+const subcategoriesRoute = require("./subCategoryRoute");
 
 // you can abbreviate the twi lines of code with one step
 //router.route('/').get(getCategories).post(createCategory);
+
+router.use("/:categoryId/subcategories", subcategoriesRoute);
 
 router.get("/", getCategories);
 router.post("/", createCategoryValidator, createCategory);
