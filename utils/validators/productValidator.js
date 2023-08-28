@@ -2,9 +2,14 @@ const { check } = require("express-validator");
 const validatorMiddleware = require("../../middleWare/validatorMiddleware");
 const CategoryModel = require("../../models/categoryModel");
 const SubCategoryModel = require("../../models/subCategoryModel");
+const { default: slugify } = require("slugify");
 
 const creatOrUpdateProductValidator = [
   check("title")
+    .custom((val, { req }) => {
+      req.body.slug = slugify(val);
+      return true;
+    })
     .notEmpty()
     .withMessage("Product required")
     .isLength({ min: 3 })
@@ -68,21 +73,21 @@ const creatOrUpdateProductValidator = [
         }
       })
     ),
-    check('subcategories')
+  check("subcategories")
     .optional()
     .isMongoId()
-    .withMessage('Invalid ID formate')
+    .withMessage("Invalid ID formate")
     .custom((subcategoriesIds) =>
-    SubCategoryModel.find({ _id: { $exists: true, $in: subcategoriesIds } }).then(
-        (result) => {
-          if (result.length < 1 || result.length !== subcategoriesIds.length) {
-            return Promise.reject(new Error(`Invalid subcategories Ids`));
-          }
+      SubCategoryModel.find({
+        _id: { $exists: true, $in: subcategoriesIds },
+      }).then((result) => {
+        if (result.length < 1 || result.length !== subcategoriesIds.length) {
+          return Promise.reject(new Error(`Invalid subcategories Ids`));
         }
-      )
+      })
     )
     .custom((val, { req }) =>
-    SubCategoryModel.find({ category: req.body.category }).then(
+      SubCategoryModel.find({ category: req.body.category }).then(
         (subcategories) => {
           const subCategoriesIdsInDB = [];
           subcategories.forEach((subCategory) => {
@@ -98,7 +103,6 @@ const creatOrUpdateProductValidator = [
         }
       )
     ),
-    
 
   check("brand").optional().isMongoId().withMessage("Invalid ID formate"),
   check("ratingsAverage")
@@ -135,6 +139,10 @@ exports.updateProductValidator = [
     .withMessage("ID Required")
     .isMongoId()
     .withMessage("Invalid ID formate"),
+  check("title").custom((val, { req }) => {
+    req.body.slug = slugify(val);
+    return true;
+  }),
   creatOrUpdateProductValidator,
   validatorMiddleware,
 ];
