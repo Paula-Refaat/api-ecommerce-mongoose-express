@@ -25,10 +25,14 @@ exports.createCategoryValidator = [
 
 exports.updateCategoryValidator = [
   check("id").isMongoId().withMessage("Invalid category id format"),
-  check("name").custom((val, { req }) => {
-    req.body.slug = slugify(val);
-    return true;
-  }),
+  check("name")
+    .optional()
+    .notEmpty()
+    .withMessage("Name required and must be not empty")
+    .custom((val, { req }) => {
+      req.body.slug = slugify(val);
+      return true;
+    }),
   validatorMiddleware,
 ];
 

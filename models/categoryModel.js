@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const SubCategoryModel = require("./subCategoryModel");
 
 // 1- Create Schema
 const categorySchema = new mongoose.Schema(
@@ -19,6 +20,20 @@ const categorySchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+const setImageURL = (doc) => {
+  if (doc.image) {
+    const URL = `${process.env.BASE_URL}/categories/${doc.image}`;
+    doc.image = URL;
+  }
+};
+
+categorySchema.post("init", (doc) => {
+  setImageURL(doc);
+});
+categorySchema.post("save", (doc) => {
+  setImageURL(doc);
+});
 
 // 2- Create Model
 const CategoryModel = mongoose.model("Category", categorySchema);

@@ -1,4 +1,5 @@
 const router = require("express").Router();
+
 const {
   getCategoryValidator,
   createCategoryValidator,
@@ -12,7 +13,10 @@ const {
   getCategory,
   updateCategory,
   deleteCategory,
+  uploadCategoryImage,
+  resizeImage,
 } = require("../services/categoryService");
+
 const subcategoriesRoute = require("./subCategoryRoute");
 
 // you can abbreviate the twi lines of code with one step
@@ -21,9 +25,21 @@ const subcategoriesRoute = require("./subCategoryRoute");
 router.use("/:categoryId/subcategories", subcategoriesRoute);
 
 router.get("/", getCategories);
-router.post("/", createCategoryValidator, createCategory);
+router.post(
+  "/",
+  uploadCategoryImage,
+  resizeImage,
+  createCategoryValidator,
+  createCategory
+);
 router.get("/:id", getCategoryValidator, getCategory);
-router.put("/:id", updateCategoryValidator, updateCategory);
+router.put(
+  "/:id",
+  uploadCategoryImage,
+  resizeImage,
+  updateCategoryValidator,
+  updateCategory
+);
 router.delete("/:id", deleteCategoryValidator, deleteCategory);
 
 module.exports = router;

@@ -1,10 +1,11 @@
 const ProductModel = require("../models/productModel");
 const factory = require("./handlersFactory");
 
+
 // @desc    Get list of products
 // @route   GET /api/products
 // @access  Public
-exports.getProducts = factory.getAll(ProductModel,"ProductModel");
+exports.getProducts = factory.getAll(ProductModel, "ProductModel");
 
 // @desc    Get Specific product by id
 // @route   GET /api/products/:id

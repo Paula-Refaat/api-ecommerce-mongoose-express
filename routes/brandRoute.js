@@ -12,12 +12,26 @@ const {
   getBrand,
   updateBrand,
   deleteBrand,
+  uploadBrandImage,
+  resizeImage,
 } = require("../services/brandService");
 
 router.get("/", getBrands);
-router.post("/", createBrandValidator, createBrand);
+router.post(
+  "/",
+  uploadBrandImage,
+  resizeImage,
+  createBrandValidator,
+  createBrand
+);
 router.get("/:id", getBrandValidator, getBrand);
-router.put("/:id", updateBrandValidator, updateBrand);
+router.put(
+  "/:id",
+  uploadBrandImage,
+  resizeImage,
+  updateBrandValidator,
+  updateBrand
+);
 router.delete("/:id", deleteBrandValidator, deleteBrand);
 
 module.exports = router;

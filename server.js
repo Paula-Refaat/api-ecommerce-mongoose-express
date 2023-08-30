@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan"); //Logger + midleware
+const path = require('path')
 
 const dbConnection = require("./config/database");
 const categoryRoute = require("./routes/categoryRoute");
@@ -25,6 +26,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'uploads')))
 
 // Mount Routes
 app.use("/api/categories", categoryRoute);
