@@ -1,15 +1,17 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan"); //Logger + midleware
-const path = require('path')
+const path = require("path");
 
 const dbConnection = require("./config/database");
+const globalError = require("./middleWare/errorMiddleware");
+const ApiError = require("./utils/apiError");
+
 const categoryRoute = require("./routes/categoryRoute");
 const subCategoryRoute = require("./routes/subCategoryRoute");
 const brandRoute = require("./routes/brandRoute");
-const productRoute = require('./routes/productRoute')
-const globalError = require("./middleWare/errorMiddleware");
-const ApiError = require("./utils/apiError");
+const productRoute = require("./routes/productRoute");
+const userRoute = require("./routes/userRoute");
 
 dotenv.config({ path: "config.env" });
 
@@ -26,14 +28,16 @@ if (process.env.NODE_ENV === "development") {
 }
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'uploads')))
+app.use(express.static(path.join(__dirname, "uploads")));
 
 // Mount Routes
 app.use("/api/categories", categoryRoute);
 app.use("/api/subcategories", subCategoryRoute);
 app.use("/api/brands", brandRoute);
 app.use("/api/products", productRoute);
+app.use("/api/users", userRoute);
 
+//Not Found Route
 app.all("*", (req, res, next) => {
   next(new ApiError(`can't find this route: ${req.originalUrl}`, 400));
 });
