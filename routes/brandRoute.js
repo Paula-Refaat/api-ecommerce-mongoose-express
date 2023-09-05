@@ -16,9 +16,13 @@ const {
   resizeImage,
 } = require("../services/brandService");
 
+const authService = require("../services/authService");
+
 router.get("/", getBrands);
 router.post(
   "/",
+  authService.protect,
+  authService.allowTo("admin"),
   uploadBrandImage,
   resizeImage,
   createBrandValidator,
@@ -27,11 +31,19 @@ router.post(
 router.get("/:id", getBrandValidator, getBrand);
 router.put(
   "/:id",
+  authService.protect,
+  authService.allowTo("admin"),
   uploadBrandImage,
   resizeImage,
   updateBrandValidator,
   updateBrand
 );
-router.delete("/:id", deleteBrandValidator, deleteBrand);
+router.delete(
+  "/:id",
+  authService.protect,
+  authService.allowTo("admin"),
+  deleteBrandValidator,
+  deleteBrand
+);
 
 module.exports = router;
