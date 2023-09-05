@@ -69,6 +69,7 @@ exports.changePassword = asyncHandler(async (req, res, next) => {
     req.params.id,
     {
       password: hashSync(req.body.password),
+      passwordChangedAt: Date.now(),
     },
     { new: true }
   );

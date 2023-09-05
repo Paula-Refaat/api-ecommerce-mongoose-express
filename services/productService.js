@@ -40,8 +40,9 @@ exports.resizeProductImages = expressAsyncHandler(async (req, res, next) => {
         req.body.images.push(imageName);
       })
     );
-    next();
   }
+  next();
+
 });
 
 // @desc    Get list of products

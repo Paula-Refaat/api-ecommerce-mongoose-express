@@ -17,6 +17,8 @@ const {
   resizeImage,
 } = require("../services/categoryService");
 
+const authService = require("../services/authService");
+
 const subcategoriesRoute = require("./subCategoryRoute");
 
 // you can abbreviate the twi lines of code with one step
@@ -27,6 +29,8 @@ router.use("/:categoryId/subcategories", subcategoriesRoute);
 router.get("/", getCategories);
 router.post(
   "/",
+  authService.protect,
+  authService.allowTo("admin"),
   uploadCategoryImage,
   resizeImage,
   createCategoryValidator,

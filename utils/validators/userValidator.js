@@ -49,6 +49,7 @@ exports.createUserValidator = [
     .withMessage("Phone number must be egyption or saudian phone number only"),
   check("profileImg").optional(),
   check("role").optional(),
+
   validatorMiddleware,
 ];
 
@@ -64,7 +65,7 @@ exports.changeUserPasswordValidator = [
     .withMessage("You must enter your current password"),
   check("passwordConfirm")
     .notEmpty()
-    .withMessage("You must enter your current password"),
+    .withMessage("You must enter your password Confirm"),
   check("password")
     .notEmpty()
     .withMessage("You must enter new password")
@@ -74,7 +75,8 @@ exports.changeUserPasswordValidator = [
         throw new Error("There no user for this id");
       }
       const isCorrectPassword = await bcrypt.compare(
-        req.body.currentPassword === user.password
+        req.body.currentPassword,
+        user.password
       );
       if (!isCorrectPassword) {
         throw new Error("Incorrect current password");
