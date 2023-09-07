@@ -64,6 +64,10 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
   }
   res.status(200).json({ data: user });
 });
+
+// @desc    Change Specific user password
+// @route   PUT /api/changePassword/:id
+// @access  Public
 exports.changePassword = asyncHandler(async (req, res, next) => {
   const user = await UserModel.findByIdAndUpdate(
     req.params.id,
