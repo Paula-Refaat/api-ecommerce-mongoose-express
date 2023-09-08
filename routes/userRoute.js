@@ -7,6 +7,11 @@ const {
   updateUser,
   deleteUser,
   changePassword,
+  getLoggedUser,
+  updateLoggedUserPassword,
+  updateLoggedUserData,
+  deleteLoggedUserData,
+  activeLoggedUserData,
 } = require("../services/userService");
 const {
   createUserValidator,
@@ -14,14 +19,26 @@ const {
   updateUserValidator,
   deleteUserValidator,
   changeUserPasswordValidator,
+  updateLoggedUserValidator,
 } = require("../utils/validators/userValidator");
 
 const authService = require("../services/authService");
 
 const router = require("express").Router();
 
-router.put("/changePassword/:id", changeUserPasswordValidator, changePassword);
+router.get("/getMe", authService.protect, getLoggedUser, getUser);
+router.put("/changeMyPassword", authService.protect, updateLoggedUserPassword);
+router.put(
+  "/updateMe",
+  authService.protect,
+  updateLoggedUserValidator,
+  updateLoggedUserData
+);
 
+router.delete("/deleteMe", authService.protect, deleteLoggedUserData);
+router.delete("/activeMe", activeLoggedUserData);
+
+router.put("/changePassword/:id", changeUserPasswordValidator, changePassword);
 router.get("/", authService.protect, authService.allowTo("admin"), getUsers);
 router.post(
   "/",

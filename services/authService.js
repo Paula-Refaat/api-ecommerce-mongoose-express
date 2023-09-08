@@ -1,16 +1,11 @@
 const crypto = require("crypto");
 const asyncHandler = require("express-async-handler");
 const userModel = require("../models/userModel");
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const ApiError = require("../utils/apiError");
 const sendEmail = require("../utils/sendEmail");
-
-const createToken = (payload) => {
-  return jwt.sign({ userId: payload }, process.env.JWT_SECRET_KEY, {
-    expiresIn: process.env.JWT_EXPIRE_TIME,
-  });
-};
+const createToken = require("../utils/createToken");
+const jwt = require("jsonwebtoken");
 
 // @desc    create user
 // @route   POST /api/auth/signup
@@ -53,7 +48,8 @@ exports.protect = asyncHandler(async (req, res, next) => {
   if (!token) {
     return next(
       new ApiError(
-        "you are not login, Please login to get accsess to this route"
+        "you are not login, Please login to get accsess to this route",
+        401
       )
     );
   }
@@ -67,7 +63,16 @@ exports.protect = asyncHandler(async (req, res, next) => {
       new ApiError("The user that belong to this token no longer exist", 401)
     );
   }
-  // 4) Check if user change his password after token created
+  //4) Check if user Not Active
+  if (!currentUser.active) {
+    return next(
+      new ApiError(
+        "The user that belong to this token not active, please activate your account",
+        401
+      )
+    );
+  }
+  // 5) Check if user change his password after token created
   if (currentUser.passwordChangedAt) {
     const passwordChangedTimeStamp = parseInt(
       currentUser.passwordChangedAt.getTime() / 1000,

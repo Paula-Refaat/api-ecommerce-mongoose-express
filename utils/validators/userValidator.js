@@ -90,12 +90,67 @@ exports.changeUserPasswordValidator = [
   validatorMiddleware,
 ];
 
+
 exports.updateUserValidator = [
   check("id").isMongoId().withMessage("Invalid User id format"),
-  check("name").custom((val, { req }) => {
-    req.body.slug = slugify(val);
-    return true;
-  }),
+  check("name")
+    .custom((val, { req }) => {
+      req.body.slug = slugify(val);
+      return true;
+    })
+    .notEmpty()
+    .withMessage("User required")
+    .isLength({ min: 3 })
+    .withMessage("Too short User name"),
+  check("email")
+    .notEmpty()
+    .withMessage("email reauired")
+    .isEmail()
+    .withMessage("invalid email address")
+    .custom((val) =>
+      UserModel.findOne({ email: val }).then((user) => {
+        if (user) {
+          return Promise.reject(new Error("E-mail already exists"));
+        }
+      })
+    ),
+  check("phone")
+    .optional()
+    .isMobilePhone(["ar-EG", "ar-SA"])
+    .withMessage("Phone number must be egyption or saudian phone number only"),
+
+  validatorMiddleware,
+];
+
+exports.updateLoggedUserValidator = [
+  check("name")
+    .custom((val, { req }) => {
+      req.body.slug = slugify(val);
+      return true;
+    })
+    .notEmpty()
+    .withMessage("User required")
+    .isLength({ min: 3 })
+    .withMessage("Too short User name"),
+  check("email")
+    .notEmpty()
+    .withMessage("email reauired")
+    .isEmail()
+    .withMessage("invalid email address")
+    .custom((val) =>
+      UserModel.findOne({ email: val }).then((user) => {
+        if (user) {
+          return Promise.reject(new Error("E-mail already exists"));
+        }
+      })
+    ),
+  check("phone")
+    .optional()
+    .isMobilePhone(["ar-EG", "ar-SA"])
+    .withMessage("Phone number must be egyption or saudian phone number only"),
+  check("profileImg").optional(),
+  check("role").optional(),
+
   validatorMiddleware,
 ];
 
