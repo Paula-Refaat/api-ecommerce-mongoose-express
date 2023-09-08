@@ -174,8 +174,7 @@ exports.activeLoggedUserData = asyncHandler(async (req, res, next) => {
   //4) Check if user Not Active
   if (!currentUser.active) {
     await userModel.findByIdAndUpdate(currentUser._id, { active: true });
-
-    res.status(204).json({ status: "success" });
   }
+  res.status(204).json({ status: "success" });
   next();
 });
