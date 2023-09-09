@@ -6,9 +6,15 @@ exports.deleteOne = (Model) =>
   asyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const document = await Model.findByIdAndDelete(id);
+
     if (!document) {
-      return next(new ApiError(`No document for this id: ${id}`, 404));
+      return next(new ApiError(`No document for this id ${id}`, 404));
     }
+    if (Model.modelName === "Review") {
+      const productId = document.product;
+      await Model.calcAverageRatingsAndQuantity(productId);
+    }
+
     res.status(204).send();
   });
 
@@ -22,6 +28,8 @@ exports.updateOne = (Model) =>
         new ApiError(`No document for this id: ${req.params.id}`, 404)
       );
     }
+    // Trigger "save" event when update document
+    document.save();
     res.status(200).json({ data: document });
   });
 exports.createOne = (Model) =>
@@ -29,9 +37,16 @@ exports.createOne = (Model) =>
     const newDocument = await Model.create(req.body);
     res.status(201).json({ data: newDocument });
   });
-exports.getOne = (Model) =>
+exports.getOne = (Model, populationOpt) =>
   asyncHandler(async (req, res, next) => {
-    const document = await Model.findById(req.params.id);
+    const { id } = req.params;
+    // 1) build query
+    let query = Model.findById(id);
+    if (populationOpt) {
+      query = query.populate(populationOpt);
+    }
+    // 2) execute query
+    const document = await query;
     if (!document) {
       return next(
         new ApiError(`No document for this id: ${req.params.id}`, 404)
@@ -39,7 +54,7 @@ exports.getOne = (Model) =>
     }
     res.status(200).json({ data: document });
   });
-exports.getAll = (Model, modelName = '') => 
+exports.getAll = (Model, modelName = "") =>
   asyncHandler(async (req, res) => {
     let filter = {};
     if (req.filterObj) {

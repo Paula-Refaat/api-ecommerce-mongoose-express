@@ -18,6 +18,9 @@ const {
 
 const authService = require("../services/authService");
 
+const reviewRoute = require("./reviewRoute");
+router.use("/:productId/reviews", reviewRoute);
+
 router.get("/", getProducts);
 router.post(
   "/",
