@@ -3,7 +3,7 @@ const {
   addAddress,
   getLoggedUserAddresses,
   deleteAddress,
-  updateAddress,
+  
 } = require("../services/addressService ");
 const authService = require("../services/authService");
 
@@ -21,13 +21,6 @@ router.delete(
   authService.protect,
   authService.allowTo("user"),
   deleteAddress
-);
-
-router.put(
-  "/:addressId",
-  authService.protect,
-  authService.allowTo("user"),
-  updateAddress
 );
 
 module.exports = router;

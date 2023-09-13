@@ -16,6 +16,9 @@ const authRoute = require("./routes/authRoute");
 const reviewRoute = require("./routes/reviewRoute");
 const wishlistRoute = require("./routes/wishlistRoute");
 const addressRoute = require("./routes/addressRoute");
+const couponRoute = require("./routes/couponRoute");
+const cartRoute = require("./routes/cartRoute");
+
 
 
 dotenv.config({ path: "config.env" });
@@ -45,6 +48,9 @@ app.use("/api/auth", authRoute);
 app.use("/api/reviews", reviewRoute);
 app.use("/api/wishlists", wishlistRoute);
 app.use("/api/addresses", addressRoute);
+app.use("/api/coupons", couponRoute);
+app.use("/api/carts", cartRoute);
+
 
 
 //Not Found Route
