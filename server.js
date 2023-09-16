@@ -1,7 +1,9 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const cors = require("cors");
 const morgan = require("morgan"); //Logger + midleware
 const path = require("path");
+const compression = require("compression");
 
 const dbConnection = require("./config/database");
 const globalError = require("./middleWare/errorMiddleware");
@@ -18,8 +20,7 @@ const wishlistRoute = require("./routes/wishlistRoute");
 const addressRoute = require("./routes/addressRoute");
 const couponRoute = require("./routes/couponRoute");
 const cartRoute = require("./routes/cartRoute");
-
-
+const orderRoute = require("./routes/orderRoute");
 
 dotenv.config({ path: "config.env" });
 
@@ -28,6 +29,13 @@ dbConnection();
 
 //express App
 const app = express();
+
+//Enable other domains to access your application
+app.use(cors());
+app.options("*", cors()); // include before other routes
+
+// compress all responses
+app.use(compression());
 
 //Middleware
 if (process.env.NODE_ENV === "development") {
@@ -50,8 +58,7 @@ app.use("/api/wishlists", wishlistRoute);
 app.use("/api/addresses", addressRoute);
 app.use("/api/coupons", couponRoute);
 app.use("/api/carts", cartRoute);
-
-
+app.use("/api/orders", orderRoute);
 
 //Not Found Route
 app.all("*", (req, res, next) => {
