@@ -21,6 +21,7 @@ const addressRoute = require("./routes/addressRoute");
 const couponRoute = require("./routes/couponRoute");
 const cartRoute = require("./routes/cartRoute");
 const orderRoute = require("./routes/orderRoute");
+const { webhookCheckout } = require("./services/orderService");
 
 dotenv.config({ path: "config.env" });
 
@@ -36,6 +37,13 @@ app.options("*", cors()); // include before other routes
 
 // compress all responses
 app.use(compression());
+
+//checkout web
+app.post(
+  "/webhook-checkout",
+  express.raw({ type: "application/json" }),
+  webhookCheckout
+);
 
 //Middleware
 if (process.env.NODE_ENV === "development") {
