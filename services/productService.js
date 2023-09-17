@@ -2,7 +2,7 @@ const ProductModel = require("../models/productModel");
 const factory = require("./handlersFactory");
 const { uuid } = require("uuidv4");
 const sharp = require("sharp");
-const expressAsyncHandler = require("express-async-handler");
+const asyncHandler = require("express-async-handler");
 const { uploadMixOfImages } = require("../middleWare/uploadImageMiddleware");
 
 exports.uploadProductImages = uploadMixOfImages([
@@ -10,7 +10,7 @@ exports.uploadProductImages = uploadMixOfImages([
   { name: "images", maxCount: 5 },
 ]);
 
-exports.resizeProductImages = expressAsyncHandler(async (req, res, next) => {
+exports.resizeProductImages = asyncHandler(async (req, res, next) => {
   // Image processing for image cover
   if (req.files.imageCover) {
     const imageCoverFileName = `product-${uuid()}-${Date.now()}-cover.jpeg`;
