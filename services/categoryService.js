@@ -52,6 +52,7 @@ exports.updateCategory = factory.updateOne(CategoryModel);
 // @route   Del /api/categories/:id
 // @access  Private
 exports.deleteCategory = asyncHandler(async (req, res, next) => {
+  
   let session = null;
   session = await mongoose.startSession();
   session.startTransaction();
