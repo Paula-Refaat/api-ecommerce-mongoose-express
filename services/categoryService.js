@@ -1,8 +1,11 @@
+const mongoose = require("mongoose");
 const { uuid } = require("uuidv4");
 const sharp = require("sharp");
 const asyncHandler = require("express-async-handler");
 
 const CategoryModel = require("../models/categoryModel");
+const SubCategoryModel = require("../models/subCategoryModel");
+const ProductModel = require("../models/productModel");
 const factory = require("./handlersFactory");
 const { uploadSingleImage } = require("../middleWare/uploadImageMiddleware");
 
@@ -48,4 +51,30 @@ exports.updateCategory = factory.updateOne(CategoryModel);
 // @desc    Delete Specific category
 // @route   Del /api/categories/:id
 // @access  Private
-exports.deleteCategory = factory.deleteOne(CategoryModel);
+exports.deleteCategory = asyncHandler(async (req, res, next) => {
+  let session = null;
+  session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const category = await CategoryModel.findByIdAndDelete(
+      req.params.id
+    ).session(session);
+    if (!category) {
+      return next(
+        new ApiError(`No category found for this id: ${req.params.id}`, 404)
+      );
+    }
+    await SubCategoryModel.deleteMany({ category: category._id }).session(
+      session
+    );
+    await ProductModel.deleteMany({ category: category._id }).session(session);
+
+    await session.commitTransaction();
+    session.endSession();
+    res.status(204).send();
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    next(error);
+  }
+});
