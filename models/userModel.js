@@ -58,6 +58,20 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+const setImageURL = (doc) => {
+  if (doc.profileImg) {
+    const URL = `${process.env.BASE_URL}/users/${doc.profileImg}`;
+    doc.profileImg = URL;
+  }
+};
+
+userSchema.post("save", function (doc) {
+  setImageURL(doc);
+});
+
+userSchema.post("init", function (doc) {
+  setImageURL(doc);
+});
 
 userSchema.pre("save", function (next) {
   if (!this.isModified("password")) return next();

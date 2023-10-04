@@ -57,3 +57,37 @@ exports.loginValidator = [
     .withMessage("Too short password"),
   validatorMiddleware,
 ];
+
+exports.forgotPasswordValidator = [
+  check("email")
+    .notEmpty()
+    .withMessage("Email Reauired")
+    .isEmail()
+    .withMessage("Please enter a valid email address"),
+  validatorMiddleware,
+];
+
+exports.verifyPassResetCodeValidator = [
+  check("resetCode")
+    .notEmpty()
+    .withMessage("Reset code required")
+    .isLength({ min: 6 })
+    .withMessage("reset code must be 6 numbers")
+    .isLength({ max: 6 })
+    .withMessage("reset code must be 6 numbers"),
+  validatorMiddleware,
+];
+
+exports.resetPasswordValidator = [
+  check("email")
+    .notEmpty()
+    .withMessage("Email Reauired")
+    .isEmail()
+    .withMessage("Please enter a valid email address"),
+  check("newPassword")
+    .notEmpty()
+    .withMessage("new Password required")
+    .isLength({ min: 6 })
+    .withMessage("Too short password"),
+  validatorMiddleware,
+];

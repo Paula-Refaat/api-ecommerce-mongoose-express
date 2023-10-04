@@ -1,11 +1,13 @@
 const crypto = require("crypto");
 const asyncHandler = require("express-async-handler");
-const userModel = require("../models/userModel");
 const bcrypt = require("bcryptjs");
+
 const ApiError = require("../utils/apiError");
+const UserAuthorization = require("../utils/UserAuthorization");
 const sendEmail = require("../utils/sendEmail");
 const createToken = require("../utils/createToken");
-const jwt = require("jsonwebtoken");
+
+const userModel = require("../models/userModel");
 
 // @desc    create user
 // @route   POST /api/auth/signup
@@ -16,6 +18,7 @@ exports.signup = asyncHandler(async (req, res, next) => {
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
+    slug: req.body.slug
   });
   // 2- Generate Token
   const token = createToken(user._id);
@@ -37,56 +40,17 @@ exports.login = asyncHandler(async (req, res, next) => {
 
 // @desc  make sure the user is logged in
 exports.protect = asyncHandler(async (req, res, next) => {
-  // 1) Check if token exist, if exist get
-  let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
-  }
-  if (!token) {
-    return next(
-      new ApiError(
-        "you are not login, Please login to get accsess to this route",
-        401
-      )
-    );
-  }
+  const userAuthorization = new UserAuthorization();
 
-  // 2) Verify token (no change happens, expired token)
-  const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-  // 3) Check if user exists
-  const currentUser = await userModel.findById(decoded.userId);
-  if (!currentUser) {
-    return next(
-      new ApiError("The user that belong to this token no longer exist", 401)
-    );
-  }
-  //4) Check if user Not Active
-  if (!currentUser.active) {
-    return next(
-      new ApiError(
-        "The user that belong to this token not active, please activate your account",
-        401
-      )
-    );
-  }
-  // 5) Check if user change his password after token created
-  if (currentUser.passwordChangedAt) {
-    const passwordChangedTimeStamp = parseInt(
-      currentUser.passwordChangedAt.getTime() / 1000,
-      10
-    );
-    // password changes after token created Error
-    if (passwordChangedTimeStamp > decoded.iat) {
-      return next(
-        new ApiError(
-          "User recently changed his password , please login again .."
-        )
-      );
-    }
-  }
+  const token = userAuthorization.getToken(req.headers.authorization);
+  const decoded = userAuthorization.tokenVerifcation(token);
+  const currentUser = await userAuthorization.checkCurrentUserExist(decoded);
+  userAuthorization.checkCurrentUserIsActive(currentUser);
+  userAuthorization.checkUserChangeHisPasswordAfterTokenCreated(
+    currentUser,
+    decoded
+  );
+
   req.user = currentUser;
   next();
 });
@@ -95,7 +59,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
 exports.allowTo = (...roles) =>
   asyncHandler(async (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      next(new ApiError("you are not allowed to access this route"));
+      next(new ApiError("you are not allowed to access this route", 403));
     }
     next();
   });
@@ -108,7 +72,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   const user = await userModel.findOne({ email: req.body.email });
 
   if (!user) {
-    return next(new ApiError(`No user for that email ${req.body.email}`));
+    return next(new ApiError(`No user for that email ${req.body.email}`, 404));
   }
 
   // 2- If user exist, Generate hash rest random 6 digits.
@@ -164,7 +128,7 @@ exports.verifyPassResetCode = asyncHandler(async (req, res, next) => {
     passwordResetExpires: { $gt: Date.now() },
   });
   if (!user) {
-    return next(new ApiError("Reset code invalid or expired"));
+    return next(new ApiError("Reset code invalid or expired", 422));
   }
   //2) resetcode valid
   user.passwordResetVerified = true;
@@ -184,7 +148,7 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
 
   if (!user) {
     return next(
-      new ApiError(`There is no user with this email ${req.body.email}`)
+      new ApiError(`There is no user with this email ${req.body.email}`, 404)
     );
   }
   // Check if reset code verified

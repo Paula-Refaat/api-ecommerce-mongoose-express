@@ -1,15 +1,14 @@
 const { uuid } = require("uuidv4");
 const sharp = require("sharp");
 const asyncHandler = require("express-async-handler");
+const { hashSync } = require("bcryptjs");
 const { uploadSingleImage } = require("../middleWare/uploadImageMiddleware");
 const UserModel = require("../models/userModel");
 const factory = require("./handlersFactory");
-const userModel = require("../models/userModel");
 const ApiError = require("../utils/apiError");
-const { hashSync } = require("bcryptjs");
+const UserAuthorization = require("../utils/UserAuthorization");
 const createToken = require("../utils/createToken");
-const jwt = require("jsonwebtoken");
-
+const userModel = require("../models/userModel");
 
 // Upload single image
 exports.uploadUserImage = uploadSingleImage("profileImg");
@@ -125,6 +124,7 @@ exports.updateLoggedUserData = asyncHandler(async (req, res, next) => {
       name: req.body.name,
       email: req.body.email,
       phone: req.body.phone,
+      slug: req.body.slug,
     },
     { new: true }
   );
@@ -145,36 +145,15 @@ exports.deleteLoggedUserData = asyncHandler(async (req, res, next) => {
 // @route   DELETE /api/users/activeMe
 // @access  Private/protected
 exports.activeLoggedUserData = asyncHandler(async (req, res, next) => {
-  // 1) Check if token exist, if exist get
-  let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
-  }
-  if (!token) {
-    return next(
-      new ApiError(
-        "you are not login, Please login to get accsess to this route",
-        401
-      )
-    );
-  }
+  const userAuthorization = new UserAuthorization();
 
-  // 2) Verify token (no change happens, expired token)
-  const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-  // 3) Check if user exists
-  const currentUser = await userModel.findById(decoded.userId);
-  if (!currentUser) {
-    return next(
-      new ApiError("The user that belong to this token no longer exist", 401)
-    );
+  const token = userAuthorization.getToken(req.headers.authorization);
+  const decoded = userAuthorization.tokenVerifcation(token);
+  const currentUser = await userAuthorization.checkCurrentUserExist(decoded);
+  if (currentUser.active) {
+    return next(new ApiError("Your Account is already active", 400));
   }
-  //4) Check if user Not Active
-  if (!currentUser.active) {
-    await userModel.findByIdAndUpdate(currentUser._id, { active: true });
-  }
-  res.status(204).json({ status: "success" });
-  next();
+  await userModel.findByIdAndUpdate(currentUser._id, { active: true });
+
+  res.status(200).json({ data: "Your account has been activated" });
 });

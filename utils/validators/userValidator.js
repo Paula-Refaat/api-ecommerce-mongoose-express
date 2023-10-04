@@ -1,8 +1,8 @@
 const { check } = require("express-validator");
 const { default: slugify } = require("slugify");
+const bcrypt = require("bcryptjs");
 const validatorMiddleware = require("../../middleWare/validatorMiddleware");
 const UserModel = require("../../models/userModel");
-const bcrypt = require("bcryptjs");
 
 exports.createUserValidator = [
   check("name")
@@ -52,12 +52,10 @@ exports.createUserValidator = [
 
   validatorMiddleware,
 ];
-
 exports.getUserValidator = [
   check("id").isMongoId().withMessage("Invalid user id format"),
   validatorMiddleware,
 ];
-
 exports.changeUserPasswordValidator = [
   check("id").isMongoId().withMessage("Invalid user id format"),
   check("currentPassword")
@@ -89,8 +87,6 @@ exports.changeUserPasswordValidator = [
     }),
   validatorMiddleware,
 ];
-
-
 exports.updateUserValidator = [
   check("id").isMongoId().withMessage("Invalid User id format"),
   check("name")
@@ -101,19 +97,25 @@ exports.updateUserValidator = [
     .notEmpty()
     .withMessage("User required")
     .isLength({ min: 3 })
-    .withMessage("Too short User name"),
+    .withMessage("Too short User name")
+    .optional(),
   check("email")
     .notEmpty()
     .withMessage("email reauired")
     .isEmail()
     .withMessage("invalid email address")
-    .custom((val) =>
+    .custom((val, { req }) =>
       UserModel.findOne({ email: val }).then((user) => {
         if (user) {
-          return Promise.reject(new Error("E-mail already exists"));
+          if (user._id.toString() === req.params.id.toString()) {
+            return true;
+          } else {
+            throw new Error("E-mail already exists");
+          }
         }
       })
-    ),
+    )
+    .optional(),
   check("phone")
     .optional()
     .isMobilePhone(["ar-EG", "ar-SA"])
@@ -121,7 +123,10 @@ exports.updateUserValidator = [
 
   validatorMiddleware,
 ];
-
+exports.deleteUserValidator = [
+  check("id").isMongoId().withMessage("Invalid User id format"),
+  validatorMiddleware,
+];
 exports.updateLoggedUserValidator = [
   check("name")
     .custom((val, { req }) => {
@@ -131,19 +136,26 @@ exports.updateLoggedUserValidator = [
     .notEmpty()
     .withMessage("User required")
     .isLength({ min: 3 })
-    .withMessage("Too short User name"),
+    .withMessage("Too short User name")
+    .optional(),
   check("email")
     .notEmpty()
-    .withMessage("email reauired")
+    .withMessage("email Required")
     .isEmail()
     .withMessage("invalid email address")
-    .custom((val) =>
+    .toLowerCase()
+    .custom((val, { req }) =>
       UserModel.findOne({ email: val }).then((user) => {
         if (user) {
-          return Promise.reject(new Error("E-mail already exists"));
+          if (user._id.toString() === req.user._id.toString()) {
+            return true;
+          } else {
+            throw new Error("E-mail already exists");
+          }
         }
       })
-    ),
+    )
+    .optional(),
   check("phone")
     .optional()
     .isMobilePhone(["ar-EG", "ar-SA"])
@@ -153,8 +165,20 @@ exports.updateLoggedUserValidator = [
 
   validatorMiddleware,
 ];
-
-exports.deleteUserValidator = [
-  check("id").isMongoId().withMessage("Invalid User id format"),
+exports.updateLoggedUserPasswordValidator = [
+  check("passwordConfirm")
+    .notEmpty()
+    .withMessage("You must enter your password Confirm"),
+  check("newPassword")
+    .notEmpty()
+    .withMessage("Password Required")
+    .isLength({ min: 6 })
+    .withMessage("Too short password")
+    .custom((val, { req }) => {
+      if (val != req.body.passwordConfirm) {
+        throw new Error("Password Confirmation incorrect");
+      }
+      return true;
+    }),
   validatorMiddleware,
 ];
