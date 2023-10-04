@@ -116,7 +116,7 @@ exports.createProductValidator = [
   check("ratingsQuantity")
     .optional()
     .isNumeric()
-    .withMessage("ratingsAverage must be a number"),
+    .withMessage("ratingsQuantity must be a number"),
   validatorMiddleware,
 ];
 
@@ -253,7 +253,7 @@ exports.updateProductValidator = [
   check("ratingsQuantity")
     .optional()
     .isNumeric()
-    .withMessage("ratingsAverage must be a number"),
+    .withMessage("ratingsQuantity must be a number"),
   validatorMiddleware,
 ];
 
