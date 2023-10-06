@@ -51,3 +51,19 @@ exports.getLoggedUserAddresses = asyncHandler(async (req, res, next) => {
     data: user.addresses,
   });
 });
+
+// @desc    update logged user address
+// @route   GET /api/addresses/:addressId
+// @access  Protected/user
+exports.updateLoggedUserAddress = asyncHandler(async (req, res, next) => {
+  const user = await UserModel.findById(req.user._id);
+  const addressIndex = user.addresses.findIndex(
+    (address) => address._id == req.params.addressId
+  );
+  user.addresses[addressIndex] = req.body;
+  await user.save();
+  res.status(200).json({
+    status: "Success",
+    data: user.addresses,
+  });
+});
