@@ -24,7 +24,7 @@ exports.addAddress = asyncHandler(async (req, res, next) => {
 // @route   DELTET /api/addresses/:addressId
 // @access  Protected/user
 exports.deleteAddress = asyncHandler(async (req, res, next) => {
-  // $addtoSet => remove address from user addresses list
+  // $pull => remove address from user addresses list
   const user = await UserModel.findByIdAndUpdate(
     req.user._id,
     {
