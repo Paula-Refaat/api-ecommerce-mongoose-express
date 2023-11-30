@@ -104,7 +104,7 @@ exports.updateLoggedUserPassword = asyncHandler(async (req, res, next) => {
   const user = await UserModel.findByIdAndUpdate(
     req.user._id,
     {
-      password: hashSync(req.body.password),
+      password: hashSync(req.body.newPassword),
       passwordChangedAt: Date.now(),
     },
     { new: true }
