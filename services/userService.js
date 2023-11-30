@@ -3,12 +3,11 @@ const sharp = require("sharp");
 const asyncHandler = require("express-async-handler");
 const { hashSync } = require("bcryptjs");
 const { uploadSingleImage } = require("../middleWare/uploadImageMiddleware");
-const UserModel = require("../models/userModel");
 const factory = require("./handlersFactory");
 const ApiError = require("../utils/apiError");
 const UserAuthorization = require("../utils/UserAuthorization");
 const createToken = require("../utils/createToken");
-const userModel = require("../models/userModel");
+const UserModel = require("../models/userModel");
 
 // Upload single image
 exports.uploadUserImage = uploadSingleImage("profileImg");
@@ -49,7 +48,7 @@ exports.createUser = factory.createOne(UserModel);
 // @route   PUT /api/users/:id
 // @access  Private/admin
 exports.updateUser = asyncHandler(async (req, res, next) => {
-  const user = await userModel.findByIdAndUpdate(
+  const user = await UserModel.findByIdAndUpdate(
     req.params.id,
     {
       name: req.body.name,
@@ -136,7 +135,7 @@ exports.updateLoggedUserData = asyncHandler(async (req, res, next) => {
 // @route   DELETE /api/users/deActiveMe
 // @access  Private/protected
 exports.deleteLoggedUserData = asyncHandler(async (req, res, next) => {
-  await userModel.findByIdAndUpdate(req.user._id, { active: false });
+  await UserModel.findByIdAndUpdate(req.user._id, { active: false });
 
   res.status(204).json({ status: "success" });
 });
@@ -153,7 +152,7 @@ exports.activeLoggedUserData = asyncHandler(async (req, res, next) => {
   if (currentUser.active) {
     return next(new ApiError("Your Account is already active", 400));
   }
-  await userModel.findByIdAndUpdate(currentUser._id, { active: true });
+  await UserModel.findByIdAndUpdate(currentUser._id, { active: true });
 
   res.status(200).json({ data: "Your account has been activated" });
 });
